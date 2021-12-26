@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import {IconButton, Colors, List, Avatar, Badge} from 'react-native-paper';
 import axios from 'react-native-axios';
+import FilterModal from './modal/FilterModal';
 import WebView from 'react-native-webview';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import PostGrid from './PostGrid';
@@ -55,6 +56,10 @@ const imageUrl_1 = [
 const ReelsScreen = () => {
   const [imageUrl, setImageUrl] = useState([]);
   const [change, setChange] = useState(0);
+  const [openFilter, setOpenFilter] = useState(false);
+  const [category, setCategory] = useState('dankmemes');
+  const [error, setError] = useState(false);
+  const [errorModal, setErrorModal] = useState(false);
   const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
     const paddingToBottom = 1;
     return (
@@ -62,6 +67,7 @@ const ReelsScreen = () => {
       contentSize.height - paddingToBottom
     );
   };
+
   // const [videoId, setVideoId] = useState('2CNl_CCtE-I');
   useEffect(() => {
     const getMeme = async () => {
@@ -84,21 +90,115 @@ const ReelsScreen = () => {
   }, []);
   // const [image, setImage] = useState([]);
   const getNewMeme = async () => {
-    const meme = await axios.get('https://meme-api.herokuapp.com/gimme/5');
-    // console.log(meme.data.memes);
-    meme.data.memes.map(item => {
-      // setImageUrl(item.preview[2]);
-      // imageUrl.push(item.preview[2]);
-      setImageUrl(i => [...i, item]);
-      // console.log(item.preview[2]);
-      // console.log(imageUrl.length);
-    });
+    try {
+      const meme = await axios.get(
+        `https://meme-api.herokuapp.com/gimme/${category}/5`,
+      );
+      console.log(meme.code);
+
+      meme.data.memes.map(item => {
+        // setImageUrl(item.preview[2]);
+        // imageUrl.push(item.preview[2]);
+        setImageUrl(i => [...i, item]);
+        // console.log(item.preview[2]);
+        // console.log(imageUrl.length);
+      });
+    } catch (e) {
+      // console.log(e);
+      // setError(true);
+      setErrorModal(true);
+    }
+  };
+  const updateMeme = () => {
+    setImageUrl([]);
+    getNewMeme();
+
+    setOpenFilter(false);
   };
   // console.log('reel', imageUrl);
   // const changeVideo = () => {};
   return (
     <View style={styles.mainBody}>
       {/* <View style={{height: 90}}></View> */}
+      <View
+        style={[
+          openFilter
+            ? {
+                height: (Dimensions.get('screen').height * 100) / 100,
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                width: (Dimensions.get('screen').width * 100) / 100,
+                position: 'absolute',
+                zIndex: 1,
+              }
+            : '',
+        ]}
+      />
+      <View style={{alignItems: 'flex-end'}}>
+        <TouchableOpacity onPress={() => setOpenFilter(true)}>
+          <IconButton icon="filter" color="white" />
+        </TouchableOpacity>
+      </View>
+      {/* <FilterModal open={openFilter} filterModalVisiblity={FilterModalState} /> */}
+
+      {/* ---------------------------filterModal--------------------------------------- */}
+      <Modal animationType="slide" transparent={true} visible={openFilter}>
+        <View style={styles.filterHead}>
+          <View style={{alignSelf: 'flex-end'}}>
+            <TouchableOpacity onPress={() => setOpenFilter(false)}>
+              <IconButton icon="close" color="white" size={30} />
+            </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              width: (width * 90) / 100,
+              // backgroundColor: 'red',
+              top: 20,
+              left: 20,
+              flexDirection: 'row',
+              borderColor: 'white',
+              borderWidth: 1,
+              borderRadius: 15,
+              justifyContent: 'space-between',
+            }}>
+            <TextInput
+              style={{color: '#fff', left: 15, width: '70%'}}
+              placeholder="Category"
+              onChangeText={text => setCategory(text)}
+            />
+            <TouchableOpacity onPress={() => updateMeme()}>
+              <IconButton icon="arrow-right-bold-outline" color="white" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      {/* ---------------------------filterModal--------------------------------------- */}
+      {/* ---------------------------ErrorModal--------------------------------------- */}
+      <Modal animationType="slide" transparent={true} visible={errorModal}>
+        <View
+          style={{
+            position: 'absolute',
+            backgroundColor: 'rgba(245, 39, 39, 0.68)',
+            width: '95%',
+            top: (height * 45) / 100,
+            height: (height * 15) / 100,
+            left: 10,
+            // borderColor: 'white',
+            // borderWidth: 1,
+            borderRadius: 15,
+          }}>
+          <View style={{alignSelf: 'flex-end'}}>
+            <TouchableOpacity onPress={() => setErrorModal(false)}>
+              <IconButton icon="close" color="white" size={30} />
+            </TouchableOpacity>
+          </View>
+          <View>
+            <Text style={{color: '#fff', fontSize: 25, alignSelf: 'center'}}>
+              No Content in this Category
+            </Text>
+          </View>
+        </View>
+      </Modal>
+      {/* ---------------------------ErrorModal--------------------------------------- */}
 
       {imageUrl && (
         <View
@@ -171,6 +271,16 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     flexDirection: 'column',
     justifyContent: 'space-between',
+  },
+  filterHead: {
+    position: 'absolute',
+    height: (height * 20) / 100,
+    width: '100%',
+    bottom: 0,
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+
+    backgroundColor: 'black',
   },
 });
 export default ReelsScreen;

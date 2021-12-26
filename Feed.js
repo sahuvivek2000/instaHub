@@ -25,16 +25,16 @@ import StoryTab from './StoryTab';
 import MoreOptions from './modal/MoreOptions';
 import FeedModal from './modal/FeedModal';
 // import { TouchableOpacity } from "react-";
-const posts = [
-  {username: 'Bheem', image: 'https://picsum.photos/700'},
-  {username: 'Raju', image: 'https://picsum.photos/700'},
-  {username: 'Kalu', image: 'https://picsum.photos/700'},
-  {username: 'Chutki', image: 'https://picsum.photos/700'},
-  {username: 'Jhonny', image: 'https://picsum.photos/700'},
-  {username: 'Jordi', image: 'https://picsum.photos/700'},
-  {username: 'Luke', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-];
+// var posts = [
+//   {username: 'Bheem', image: 'https://picsum.photos/700', likes: 4},
+//   {username: 'Raju', image: 'https://picsum.photos/700', likes: 4},
+//   {username: 'Kalu', image: 'https://picsum.photos/700', likes: 4},
+//   {username: 'Chutki', image: 'https://picsum.photos/700', likes: 4},
+//   {username: 'Jhonny', image: 'https://picsum.photos/700', likes: 4},
+//   {username: 'Jordi', image: 'https://picsum.photos/700', likes: 4},
+//   {username: 'Luke', image: 'https://picsum.photos/700', likes: 4},
+//   {username: 'Rock', image: 'https://picsum.photos/700', likes: 4},
+// ];
 var backTimer;
 var backCount = 0;
 const Feed = props => {
@@ -46,6 +46,16 @@ const Feed = props => {
   // const [modalVis, setModalVis] = useState(false);
   const [Option, setMore] = useState(false);
   const [feedOption, setFeedOption] = useState(false);
+  const [posts, setPost] = useState([
+    {username: 'Bheem', image: 'https://picsum.photos/700', likes: 4},
+    {username: 'Raju', image: 'https://picsum.photos/700', likes: 4},
+    {username: 'Kalu', image: 'https://picsum.photos/700', likes: 4},
+    {username: 'Chutki', image: 'https://picsum.photos/700', likes: 4},
+    {username: 'Jhonny', image: 'https://picsum.photos/700', likes: 4},
+    {username: 'Jordi', image: 'https://picsum.photos/700', likes: 4},
+    {username: 'Luke', image: 'https://picsum.photos/700', likes: 4},
+    {username: 'Rock', image: 'https://picsum.photos/700', likes: 4},
+  ]);
 
   // const [backCount, setBackCount] = useState(0);
   // const [backTimer, setBackTimer] = useState(0);
@@ -204,6 +214,7 @@ const Feed = props => {
                         icon={saved ? 'bookmark' : 'bookmark-outline'}
                         onPress={() => (
                           setSaved(!saved),
+                          console.log(item.likes),
                           ToastAndroid.show('Post saved', ToastAndroid.SHORT)
                         )}
                       />

@@ -42,6 +42,7 @@ import Profile from './Profile';
 import Search from './Search';
 import ActivityScreen from './ActivityScreen';
 import ReelsScreen from './ReelsScreen';
+import MessageScreen from './MessageScreen';
 const mydata = [
   {title: 'View Profile', icon: 'account-circle'},
   {title: 'Mute', icon: 'microphone-off'},

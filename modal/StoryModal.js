@@ -18,17 +18,67 @@ import {
   Image,
   TextInput,
 } from 'react-native';
-import {IconButton, Colors, List} from 'react-native-paper';
-
+import {IconButton, Colors, List, ProgressBar} from 'react-native-paper';
+const height = Dimensions.get('screen').height;
+const width = Dimensions.get('screen').width;
+const Story = [
+  `https://picsum.photos/id/0/${Math.round(width)}/${Math.round(height)}`,
+  `https://picsum.photos/id/1015/${Math.round(width)}/${Math.round(height)}`,
+  `https://picsum.photos/id/1016/${Math.round(width)}/${Math.round(height)}`,
+  `https://picsum.photos/id/10/${Math.round(width)}/${Math.round(height)}`,
+  `https://picsum.photos/id/1011/${Math.round(width)}/${Math.round(height)}`,
+  `https://picsum.photos/id/1018/${Math.round(width)}/${Math.round(height)}`,
+  `https://picsum.photos/id/1025/${Math.round(width)}/${Math.round(height)}`,
+  `https://picsum.photos/id/1022/${Math.round(width)}/${Math.round(height)}`,
+];
 const StoryModal = props => {
   const [modalVis, setModalVis] = useState(false);
+  const [index, setIndex] = useState(0);
   useEffect(() => {
+    // index === Story.length && setIndex(0);
     setModalVis(props.modal);
+    // console.log(width, height);
+    if (index + 1 !== Story.length) {
+      setTimeout(() => {
+        showStory(1);
+        // index + 1 === Story.length && setModalVis(false);
+      }, 2000);
+    }
+    if (index + 1 === Story.length) {
+      setTimeout(() => {
+        setModalVis(false);
+        props.modalClose(false);
+        setIndex(0);
+      }, 2000);
+    }
   });
+  const showStory = data => {
+    index < Story.length && data && setIndex(index + 1);
+    index > 0 && !data && setIndex(index - 1);
+    // index + 1 === Story.length && setModalVis(false) && props.modalClose(false);
+    // else setIndex(0);
+  };
   return (
     <Modal animationType="slide" transparent={true} visible={modalVis}>
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
+          <View
+            style={{
+              position: 'absolute',
+              zIndex: 3,
+              // backgroundColor: 'red',
+              // height: (height * 10) / 100,
+              width: width,
+              // alignItems: 'center',
+              // paddingTop: 5,
+              // top: 10,
+            }}>
+            <ProgressBar
+              progress={(index + 1) / Story.length}
+              color="#fff"
+              style={{}}
+            />
+          </View>
           <View style={styles.closeIcon}>
             <Pressable
               onPress={() => (setModalVis(false), props.modalClose(false))}>
@@ -47,8 +97,46 @@ const StoryModal = props => {
                 height: (Dimensions.get('screen').height * 100) / 100,
                 flexWrap: 'wrap',
               }}
-              source={{uri: 'https://picsum.photos/700'}}></Image>
+              source={{uri: Story[index]}}
+            />
           </View>
+          {
+            index + 1 !== Story.length && (
+              <View
+                style={{
+                  position: 'absolute',
+                  // backgroundColor: 'red',
+                  right: 0,
+                  top: (height * 40) / 100,
+                }}>
+                <IconButton
+                  icon="chevron-right"
+                  color="#fff"
+                  size={30}
+                  onPress={() => showStory(1)}
+                />
+              </View>
+            )
+            // index && (
+            // ))
+          }
+          <View
+            style={{
+              position: 'absolute',
+              // backgroundColor: 'red',
+              left: 0,
+              top: (height * 40) / 100,
+            }}>
+            {index ? (
+              <IconButton
+                icon="chevron-left"
+                color="#fff"
+                size={30}
+                onPress={() => showStory(0)}
+              />
+            ) : null}
+          </View>
+
           <View style={styles.footer}>
             {/* <TextInput
           mode="outlined"
@@ -70,7 +158,7 @@ const StoryModal = props => {
 
           // value={text}
           // onChangeText={}
-        /> */}
+         /> */}
             <View
               style={{
                 padding: 0,
