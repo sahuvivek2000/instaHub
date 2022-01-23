@@ -31,7 +31,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 // import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
-
+import EncryptedStorage from 'react-native-encrypted-storage';
 import {mdiAccountCircle} from '@mdi/js';
 import AppBar from './AppBar';
 import BottomNav from './BottomNav';
@@ -43,205 +43,224 @@ import Search from './Search';
 import ActivityScreen from './ActivityScreen';
 import ReelsScreen from './ReelsScreen';
 import MessageScreen from './MessageScreen';
+import LoginPage from './LoginPage';
 const mydata = [
   {title: 'View Profile', icon: 'account-circle'},
   {title: 'Mute', icon: 'microphone-off'},
 ];
+var userName = '';
+var userEmail = '';
+var userId = '';
+var isLogin = false;
 const Tab = createMaterialBottomTabNavigator();
 const App = () => {
-  const [a, setA] = React.useState('black');
-  // const [i, setI] = React.useState(0);
-  const [modalVis, setModalVis] = useState(false);
-  const [moreOption, setMore] = useState(false);
-  const [data, setData] = useState({modal: false, other: false});
+  const [Login, setIsLogin] = React.useState();
+  // const [modalVis, setModalVis] = useState(false);
+  // const [moreOption, setMore] = useState(false);
+  // const [data, setData] = useState({modal: false, other: false});
+  // const [userEmail, setUserEmail] = useState('');
+  // const [UserName, setUserName] = useState('');
+  // const [userId, setUserId] = useState('');
 
-  const [col, setCol] = React.useState([
-    'red',
-    'blue',
-    'green',
-    'yellow',
-    'orange',
-    'pink',
-    'grey',
-    'purple',
-    'black',
-  ]);
-  const callbackFunction = data => {
-    setModalVis(data.modal);
-    console.log('entered callbackFunction', data);
-    setMore(data.other);
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        var data = await EncryptedStorage.getItem('user_session');
+        // console.log('line 68 -', JSON.parse(data));
+        data = JSON.parse(data);
+        // data.state ? (isLogin = data.state) : null;
+        isLogin = data.state;
+        setIsLogin(isLogin);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    getData();
+  }, []);
+  // const callbackFunction = data => {
+  //   setModalVis(data.modal);
+  //   console.log('entered callbackFunction', data);
+  //   setMore(data.other);
 
-    // console.log("object", data);
+  //   // console.log("object", data);
+  // };
+  // const storyVisible = data => {
+  //   setModalVis(data);
+  // };
+
+  const setUserData = async () => {
+    const data = {
+      userName: userName,
+      userEmail: userEmail,
+      userId: userId,
+      state: isLogin,
+    };
+    await EncryptedStorage.setItem('user_session', JSON.stringify(data));
+    // console.log('line 96 -', isLogin);
   };
-  const storyVisible = data => {
-    setModalVis(data);
+
+  const parentFunction = async value => {
+    isLogin = value.state;
+    setIsLogin(value.state);
+    // setUserEmail(value.userEmail);
+    // setUserName(value.userName);
+    // setUserId(value.userId);
+    userName = value.userName;
+    userEmail = value.userEmail;
+    userId = value.userId;
+    // console.log(value);
+    setUserData();
   };
-
-  // col.map((i) => {
-  //   setTimeout(() => {
-  //     setA(i);
-  //   }, 5000);
-  // });
-  // useEffect(() => {
-  //   callbackFunction;
-  // });
-
+  const profileFunction = async value => {
+    isLogin = value;
+    setIsLogin(value);
+  };
   return (
-    // <View style={styles.container}>
-    // {/* <Home /> */}
-    // {/* <Profile /> */}
-    // {/* <View
-    //   style={
-    //     {
-    //       // justifyContent: 'flex-end',
-    //       // bottom: 0,
-    //       // position: 'absolute',
-    //       // flex: 1,
-    //       // backgroundColor: 'yellow',
-    //       // borderColor: 'red',
-    //       // borderWidth: 1,
-    //       // height: 200,
-    //       // width: '100%',
-    //     }
-    //   }> */}
-    // {/* <BottomNav /> */}
-    // <View style={{height: '100%'}}>
-    <NavigationContainer>
-      <Tab.Navigator
-        barStyle={{
-          backgroundColor: 'black',
-          // height: (Dimensions.get('screen').height * 5) / 100,
-          // borderColor: 'yellow',
-          // borderWidth: 2,
-        }}
-        labeled={false}>
-        <Tab.Screen
-          name="Home"
-          // tabBarOptions={{showLabel: false}}
-          options={{
-            tabBarIcon: () => (
-              <IconButton
-                icon="home-outline"
-                color="white"
-                size={26}
-                style={{
-                  // flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  // borderColor: 'yellow',
-                  // borderWidth: 2,
-                  // top: 0,
-                  height: '100%',
-                }}
-              />
-            ),
+    <View
+      style={{
+        width: Dimensions.get('screen').width,
+        height: Dimensions.get('window').height,
+      }}>
+      {/* {!isLogin && <LoginPage callbackFunction={parentFunction} />} */}
+      {Login ? (
+        <NavigationContainer>
+          <Tab.Navigator
+            barStyle={{
+              backgroundColor: 'black',
+              // height: (Dimensions.get('screen').height * 5) / 100,
+              // borderColor: 'yellow',
+              // borderWidth: 2,
+            }}
+            labeled={false}>
+            <Tab.Screen
+              name="Home"
+              // tabBarOptions={{showLabel: false}}
+              options={{
+                tabBarIcon: () => (
+                  <IconButton
+                    icon="home-outline"
+                    color="white"
+                    size={26}
+                    style={{
+                      // flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      // borderColor: 'yellow',
+                      // borderWidth: 2,
+                      // top: 0,
+                      height: '100%',
+                    }}
+                  />
+                ),
 
-            headerShown: false,
-          }}
-          component={Home}
-          // options={{headerShown: false}}
-        />
-        <Tab.Screen
-          name="Search"
-          component={Search}
-          options={{
-            tabBarIcon: () => (
-              <IconButton
-                icon="magnify"
-                color="white"
-                size={26}
-                style={{
-                  // flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  // borderColor: 'yellow',
-                  // borderWidth: 2,
-                  // top: 0,
-                  height: '100%',
-                }}
-              />
-            ),
+                headerShown: false,
+              }}
+              component={Home}
+              // options={{headerShown: false}}
+            />
+            <Tab.Screen
+              name="Search"
+              component={Search}
+              options={{
+                tabBarIcon: () => (
+                  <IconButton
+                    icon="magnify"
+                    color="white"
+                    size={26}
+                    style={{
+                      // flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      // borderColor: 'yellow',
+                      // borderWidth: 2,
+                      // top: 0,
+                      height: '100%',
+                    }}
+                  />
+                ),
 
-            headerShown: false,
-          }}
-        />
-        <Tab.Screen
-          name="Reels"
-          component={ReelsScreen}
-          options={{
-            tabBarIcon: () => (
-              <IconButton
-                icon="movie-outline"
-                color="white"
-                size={26}
-                style={{
-                  // flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  // borderColor: 'yellow',
-                  // borderWidth: 2,
-                  // top: 0,
-                  height: '100%',
-                }}
-              />
-            ),
+                headerShown: false,
+              }}
+            />
+            <Tab.Screen
+              name="Reels"
+              component={ReelsScreen}
+              options={{
+                tabBarIcon: () => (
+                  <IconButton
+                    icon="movie-outline"
+                    color="white"
+                    size={26}
+                    style={{
+                      // flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      // borderColor: 'yellow',
+                      // borderWidth: 2,
+                      // top: 0,
+                      height: '100%',
+                    }}
+                  />
+                ),
 
-            headerShown: false,
-          }}
-        />
-        <Tab.Screen
-          name="Activity"
-          component={ActivityScreen}
-          options={{
-            tabBarIcon: () => (
-              <IconButton
-                icon="heart-outline"
-                color="white"
-                size={26}
-                style={{
-                  // flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  // borderColor: 'yellow',
-                  // borderWidth: 2,
-                  // top: 0,
-                  height: '100%',
-                }}
-              />
-            ),
+                headerShown: false,
+              }}
+            />
+            <Tab.Screen
+              name="Activity"
+              component={ActivityScreen}
+              options={{
+                tabBarIcon: () => (
+                  <IconButton
+                    icon="heart-outline"
+                    color="white"
+                    size={26}
+                    style={{
+                      // flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      // borderColor: 'yellow',
+                      // borderWidth: 2,
+                      // top: 0,
+                      height: '100%',
+                    }}
+                  />
+                ),
 
-            headerShown: false,
-          }}
-        />
-        <Tab.Screen
-          name="Profile"
-          component={Profile}
-          options={{
-            tabBarIcon: () => (
-              <IconButton
-                icon="account-circle-outline"
-                color="white"
-                size={26}
-                style={{
-                  // flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  // borderColor: 'yellow',
-                  // borderWidth: 2,
-                  // top: 0,
-                  height: '100%',
-                }}
-              />
-            ),
+                headerShown: false,
+              }}
+            />
+            <Tab.Screen
+              name="Profile"
+              // component={Profile}
+              children={() => <Profile childFunction={profileFunction} />}
+              options={{
+                tabBarIcon: () => (
+                  <IconButton
+                    icon="account-circle-outline"
+                    color="white"
+                    size={26}
+                    style={{
+                      // flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      // borderColor: 'yellow',
+                      // borderWidth: 2,
+                      // top: 0,
+                      height: '100%',
+                    }}
+                  />
+                ),
 
-            headerShown: false,
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
-    // </View>
-    //   {/* </View> */}
-    // {/* </View> */}
+                headerShown: false,
+              }}
+            />
+          </Tab.Navigator>
+        </NavigationContainer>
+      ) : (
+        <LoginPage callbackFunction={parentFunction} />
+      )}
+    </View>
   );
 };
 

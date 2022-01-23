@@ -14,6 +14,8 @@ target 'InstaHub' do
 
   pod 'react-native-webview', :path => '../node_modules/react-native-webview'
 
+  pod 'react-native-encrypted-storage', :path => '../node_modules/react-native-encrypted-storage'
+
   target 'InstaHubTests' do
     inherit! :complete
     # Pods for testing

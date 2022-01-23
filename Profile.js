@@ -27,16 +27,22 @@ import PostGrid from './PostGrid';
 const height = Dimensions.get('screen').height;
 const width = Dimensions.get('screen').width;
 const Tab = createMaterialTopTabNavigator();
-const Profile = () => {
+const Profile = props => {
   const [expanded, setExpanded] = useState(true);
   const [storyHighlight, setStoryHighlight] = useState(false);
   const [postGrid, setPostGrid] = useState(true);
   const [tagPostGrid, setTagPostGrid] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
 
   const handlePress = () => setExpanded(!expanded);
+  const parentFunction = data => {
+    setIsLogin(data);
+    props.childFunction(data);
+    console.log('profile', data);
+  };
   return (
     <View style={styles.profile}>
-      <ProfileHead />
+      <ProfileHead childFunction={parentFunction} />
       <View style={styles.profileUser}>
         <View style={{justifyContent: 'center'}}>
           <Avatar.Image
