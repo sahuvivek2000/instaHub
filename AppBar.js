@@ -10,11 +10,19 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Appbar, Avatar, IconButton} from 'react-native-paper';
+import AddPost from './modal/AddPost';
 
 // export default function AppBar() {
 //   return (
 const AppBar = props => {
   const [openMsg, setOpenMsg] = useState(false);
+  const [post, setPost] = useState(false);
+
+  const postCallback = value => {
+    console.log('first');
+    setPost(value);
+  };
+
   const drawer = useRef(null);
   return (
     <View style={styles.head}>
@@ -68,16 +76,24 @@ const AppBar = props => {
           </Text>
         </View>
         {/* <TouchableOpacity onPress={() => console.log('object')}> */}
-        <IconButton
-          onPress={() => props.msgShow(true)}
-          icon="facebook-messenger"
-          color="#fff"
-        />
+        <View style={{flexDirection: 'row'}}>
+          <IconButton
+            icon="plus-box-multiple-outline"
+            color="#fff"
+            onPress={() => setPost(true)}
+          />
+          <IconButton
+            onPress={() => props.msgShow(true)}
+            icon="facebook-messenger"
+            color="#fff"
+          />
+        </View>
         {/* </TouchableOpacity> */}
       </View>
 
       {/* <Appbar.Action icon="magnify" onPress={() => {}} />
     <Appbar.Action icon="dots-vertical" onPress={() => {}} /> */}
+      <AddPost open={post} modalClose={postCallback} />
     </View>
   );
 };

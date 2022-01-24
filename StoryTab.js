@@ -15,7 +15,7 @@ const StoryTab = props => {
   const [otherOption, setOther] = useState(false);
   const [data, setData] = useState({modal: false, other: false});
   useEffect(() => {
-    console.log('storytab', props.modal, props.other);
+    // console.log('storytab', props.modal, props.other);
     // setModalVisible(props.modal);
     // setOther(props.other);
     // setData({modal:modalVisible,other:otherOption})

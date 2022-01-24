@@ -25,7 +25,7 @@ const height = Dimensions.get('screen').height;
 const width = Dimensions.get('screen').width;
 var userData;
 var userList;
-// var userDetailFull = [];
+var userDetail;
 const ActivityScreen = () => {
   const [user, setUser] = useState();
   const [userDetailFull, setUserDetailFull] = useState();
@@ -40,13 +40,13 @@ const ActivityScreen = () => {
         // setIsLogin(isLogin);
         userData = data;
         console.log(userData);
-        // await checkUser();
+        await checkUser();
+        await fetchUser();
       } catch (e) {
         console.log(e);
       }
     };
     getData();
-    fetchUser();
   }, []);
 
   const fetchUser = async () => {
@@ -60,9 +60,20 @@ const ActivityScreen = () => {
     }
     // await checkUser();
   };
+  const unfollowUser = async id => {
+    console.log('entered unfollow');
+    const result = await axios.patch(
+      `http://localhost:3002/userDetail/${userData.userId}`,
+      {
+        following: id,
+      },
+    );
+    console.log(result);
+    await checkUser();
+  };
 
   const fetchUserDetail = async followingUserId => {
-    const userDetail = await axios.post(
+    const userDetails = await axios.post(
       `http://localhost:3002/userDetail/${userData.userId}`,
       {
         userId: userData.userId,
@@ -78,18 +89,18 @@ const ActivityScreen = () => {
     const result = await axios.get(
       `http://localhost:3002/userDetail/${userData.userId}`,
     );
-    // console.log(result.data);
-    // userDetailFull = result.data;
+    console.log(result.data);
+    userDetail = result.data;
     setUserDetailFull(result.data);
-    console.log(userDetailFull);
+    // console.log(userDetailFull);
   };
-  const checkFollower = async id => {
-    await checkUser();
+  const checkFollower = id => {
+    // await checkUser();
 
-    const result = userDetailFull.following.filter(item => item === id);
-    console.log(result);
-    if (result) return true;
-    else return false;
+    let result = userDetail[0].following;
+    result = result.includes(id);
+    // console.log(result);
+    return result;
   };
   return (
     <View style={styles.mainContainer}>
@@ -172,18 +183,25 @@ const ActivityScreen = () => {
                   {/* <Text style={{fontSize: 13, color: 'grey'}}>
                       Approve or ignore request
                     </Text> */}
-                  <TouchableOpacity onPress={() => fetchUserDetail(item._id)}>
-                    {
-                      // userDetailFull &&
-                      // userDetailFull.following.filter(
-                      //   i => i === item._id.toString(),
-                      // )
-                      userDetailFull && checkFollower(item._id) ? (
-                        <IconButton icon="warning" color="#fff" />
-                      ) : (
-                        <IconButton icon="plus" color="#fff" />
-                      )
-                    }
+                  <TouchableOpacity
+                    style={{
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: '#609BEB',
+                      height: 25,
+                      width: 70,
+                      borderRadius: 5,
+                    }}
+                    onPress={() =>
+                      !checkFollower(item._id)
+                        ? fetchUserDetail(item._id)
+                        : unfollowUser(item._id)
+                    }>
+                    {userDetail && checkFollower(item._id) ? (
+                      <Text style={{color: '#fff'}}>Unfollow</Text>
+                    ) : (
+                      <Text style={{color: '#fff'}}>follow</Text>
+                    )}
                   </TouchableOpacity>
                 </View>
               </View>

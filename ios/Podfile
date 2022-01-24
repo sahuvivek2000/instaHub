@@ -16,6 +16,8 @@ target 'InstaHub' do
 
   pod 'react-native-encrypted-storage', :path => '../node_modules/react-native-encrypted-storage'
 
+  pod 'react-native-document-picker', :path => '../node_modules/react-native-document-picker'
+
   target 'InstaHubTests' do
     inherit! :complete
     # Pods for testing

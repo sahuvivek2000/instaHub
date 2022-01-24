@@ -42,12 +42,14 @@ var backTimer;
 var backCount = 0;
 var userData;
 var feedData;
+var userList;
+var userDetail;
 const Feed = props => {
   const [likestate, setLikeState] = useState(false);
   const [saved, setSaved] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [moreOption, setMoreOption] = useState(false);
-  const [scroll, setScroll] = useState();
+  const [user, setUser] = useState();
   const [userFeed, setUserFeed] = useState();
   // const [modalVis, setModalVis] = useState(false);
   const [Option, setMore] = useState(false);
@@ -76,15 +78,45 @@ const Feed = props => {
         // setIsLogin(isLogin);
         userData = data;
         // console.log(userData);
-        fetchFeed();
+        await fetchFeed();
+        await fetchUser();
+        // await checkUser();
       } catch (e) {
         console.log(e);
       }
     };
     getData();
-  }, []);
+  }, [userFeed]);
 
+  const fetchUser = async () => {
+    try {
+      const users = await axios.get('http://localhost:3002/users');
+      // console.log(users.data);
+      userList = users.data;
+      setUser(userList);
+    } catch (e) {
+      console.log(e);
+    }
+    // await checkUser();
+  };
+  const getUserName = id => {
+    const result = userList.filter(i => i._id === id);
+    // console.log(result[0].username);
+    return result[0].username;
+  };
+  // const checkUser = async () => {
+  //   console.log('first');
+  //   const result = await axios.get(
+  //     `http://localhost:3002/userDetail/${userData.userId}`,
+  //   );
+  //   console.log('userDetail', result.data);
+  //   userDetail = result.data;
+  //   // setUserDetailFull(result.data);
+  //   // console.log(userDetailFull);
+  // };
   const fetchFeed = async () => {
+    // const uId = [...userData.userId, ...userDetail[0].following];
+    // console.log(uId);
     const feed = await axios.get(
       `http://localhost:3002/post/${userData.userId}`,
     );
@@ -144,7 +176,7 @@ const Feed = props => {
           />
         </View>
 
-        {feedData && (
+        {feedData && userList && (
           <View style={style.post}>
             <FlatList
               data={feedData}
@@ -186,7 +218,8 @@ const Feed = props => {
                           marginLeft: 1,
                           textAlignVertical: 'center',
                         }}>
-                        {item.title}
+                        {getUserName(item.userId)}
+                        {/* {item.title} */}
                       </Text>
                     </View>
                     <TouchableOpacity
@@ -229,6 +262,7 @@ const Feed = props => {
                             uri: `http://localhost:3002/uploads/${item.image}`,
                             // uri: 'https://picsum.photos/700',
                           }}
+                          resizeMode="contain"
                         />
                       </TouchableOpacity>
                     </View>
