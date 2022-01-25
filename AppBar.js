@@ -43,38 +43,40 @@ const AppBar = props => {
           // borderColor: 'red',
           // width: 400,
         }}>
-        <View style={{flexDirection: 'row'}}>
-          <Text
-            style={{
-              fontSize: 28,
-              display: 'flex',
-              color: 'white',
-              textAlignVertical: 'center',
-              marginLeft: 15,
-            }}>
-            Insta
-          </Text>
+        <TouchableOpacity onPress={() => props.postRefresh(true)}>
+          <View style={{flexDirection: 'row'}}>
+            <Text
+              style={{
+                fontSize: 28,
+                display: 'flex',
+                color: 'white',
+                textAlignVertical: 'center',
+                marginLeft: 15,
+              }}>
+              Insta
+            </Text>
 
-          <Text
-            style={{
-              marginLeft: 3,
-              fontSize: 28,
-              height: 36,
-              // lineHeight: 50,
-              marginTop: 7,
-              // padding: 15,
-              paddingLeft: 5,
-              paddingRight: 5,
-              borderRadius: 10,
-              backgroundColor: '#f56729',
-              textAlignVertical: 'center',
-              // display: "flex",
-              color: 'white',
-              // padding: 20,
-            }}>
-            Hub
-          </Text>
-        </View>
+            <Text
+              style={{
+                marginLeft: 3,
+                fontSize: 28,
+                height: 36,
+                // lineHeight: 50,
+                marginTop: 7,
+                // padding: 15,
+                paddingLeft: 5,
+                paddingRight: 5,
+                borderRadius: 10,
+                backgroundColor: '#f56729',
+                textAlignVertical: 'center',
+                // display: "flex",
+                color: 'white',
+                // padding: 20,
+              }}>
+              Hub
+            </Text>
+          </View>
+        </TouchableOpacity>
         {/* <TouchableOpacity onPress={() => console.log('object')}> */}
         <View style={{flexDirection: 'row'}}>
           <IconButton

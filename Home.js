@@ -47,6 +47,8 @@ const Home = () => {
   // const [a, setA] = React.useState('black');
   const [chat, setChat] = useState(true);
   const [calls, setCalls] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+
   // // const [i, setI] = React.useState(0);
   // const [modalVis, setModalVis] = useState(false);
   // const [moreOption, setMore] = useState(false);
@@ -82,7 +84,12 @@ const Home = () => {
     }
   };
   // useEffect(() => {
-
+  const parentPostRefresh = data => {
+    setRefresh(data);
+  };
+  const feedRefresh = data => {
+    setRefresh(data);
+  };
   // }, [])
   const MessageScreen = () => {
     // const [chat, setChat] = useState(true);
@@ -182,7 +189,7 @@ const Home = () => {
       {/* <IconButton icon="home" onPress={() => drawer.current.openDrawer()} /> */}
       <View style={[styles.container]}>
         <View style={[styles.appbar]}>
-          <AppBar msgShow={openMsgDrawer} />
+          <AppBar msgShow={openMsgDrawer} postRefresh={parentPostRefresh} />
         </View>
 
         <View
@@ -201,7 +208,7 @@ const Home = () => {
           }}>
           {/* <StoryModal modal={modalVis} modalClose={modalClose} /> */}
 
-          <Feed />
+          <Feed refresh={refresh} refreshStat={feedRefresh} />
         </View>
 
         {/* <View

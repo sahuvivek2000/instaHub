@@ -1,5 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable no-unused-vars */
 import React, {useState, useEffect} from 'react';
@@ -19,11 +17,14 @@ import {
 } from 'react-native';
 import {IconButton, Colors, List, Avatar} from 'react-native-paper';
 import {NavigationContainer} from '@react-navigation/native';
+import EncryptedStorage from 'react-native-encrypted-storage';
+
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 
 import ProfileHead from './ProfileHead';
 import StoryTab from './StoryTab';
 import PostGrid from './PostGrid';
+var userData;
 const height = Dimensions.get('screen').height;
 const width = Dimensions.get('screen').width;
 const Tab = createMaterialTopTabNavigator();
@@ -33,6 +34,29 @@ const Profile = props => {
   const [postGrid, setPostGrid] = useState(true);
   const [tagPostGrid, setTagPostGrid] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        var data = await EncryptedStorage.getItem('user_session');
+        // console.log('line 68 -', JSON.parse(data));
+        data = JSON.parse(data);
+        // data.state ? (isLogin = data.state) : null;
+        // isLogin = data.state;
+        // setIsLogin(isLogin);
+        userData = data;
+        setUser(data);
+        console.log(userData);
+        // await fetchFeed();
+        // await fetchUser();
+        // await checkUser();
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    getData();
+  }, []);
 
   const handlePress = () => setExpanded(!expanded);
   const parentFunction = data => {
@@ -78,10 +102,14 @@ const Profile = props => {
           </View>
         </View>
       </View>
-      <View style={{left: 17}}>
-        <Text style={{color: 'white', fontSize: 15}}>User Name</Text>
-        <Text style={{color: 'white', fontSize: 15}}>Bio</Text>
-      </View>
+      {userData && (
+        <View style={{left: 17}}>
+          <Text style={{color: 'white', fontSize: 15}}>
+            {userData.userName ? userData.userName : userData.userEmail}
+          </Text>
+          <Text style={{color: 'white', fontSize: 15}}>Bio</Text>
+        </View>
+      )}
       <View
         style={{
           marginTop: 10,
@@ -155,7 +183,7 @@ const Profile = props => {
             />
           </List.Accordion>
         </List.Section> */}
-        <View style={{width: '100%', top: 10}}>
+        {/* <View style={{width: '100%', top: 10}}>
           <TouchableOpacity
             onPress={() => setStoryHighlight(!storyHighlight)}
             style={{
@@ -190,7 +218,7 @@ const Profile = props => {
               <StoryTab />
             </View>
           ) : null}
-        </View>
+        </View> */}
       </View>
       <View style={styles.postGrid}>
         <View
@@ -229,7 +257,7 @@ const Profile = props => {
             <IconButton icon="account-box-outline" color="white" />
           </TouchableOpacity>
         </View>
-        <PostGrid />
+        <PostGrid userId={userData} />
       </View>
     </View>
   );

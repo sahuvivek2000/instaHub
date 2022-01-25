@@ -27,6 +27,7 @@ import StoryModal from './modal/StoryModal';
 import StoryTab from './StoryTab';
 import MoreOptions from './modal/MoreOptions';
 import FeedModal from './modal/FeedModal';
+import base_url from './app_constants';
 // import { TouchableOpacity } from "react-";
 // var posts = [
 //   {username: 'Bheem', image: 'https://picsum.photos/700', likes: 4},
@@ -78,19 +79,24 @@ const Feed = props => {
         // setIsLogin(isLogin);
         userData = data;
         // console.log(userData);
-        await fetchFeed();
+        // await fetchFeed();
         await fetchUser();
         // await checkUser();
+        if (props.refresh) {
+          await fetchFeed();
+          console.log('refresh');
+          props.refreshStat(false);
+        }
       } catch (e) {
         console.log(e);
       }
     };
     getData();
-  }, [userFeed]);
+  }, [props]);
 
   const fetchUser = async () => {
     try {
-      const users = await axios.get('http://localhost:3002/users');
+      const users = await axios.get(`${base_url}/users/`);
       // console.log(users.data);
       userList = users.data;
       setUser(userList);
@@ -117,11 +123,9 @@ const Feed = props => {
   const fetchFeed = async () => {
     // const uId = [...userData.userId, ...userDetail[0].following];
     // console.log(uId);
-    const feed = await axios.get(
-      `http://localhost:3002/post/${userData.userId}`,
-    );
+    const feed = await axios.get(`${base_url}/post/${userData.userId}`);
     // console.log(feed.data);
-    feedData = feed.data;
+    feedData = feed.data.reverse();
     setUserFeed(feedData);
   };
 
@@ -148,6 +152,28 @@ const Feed = props => {
   //     option: Option,
   //   });
   // });
+  const checkLike = async value => {
+    const res = value.like.includes(userData.userId);
+    if (res) {
+      setLikeState(!likestate);
+      const result = await axios.patch(`${base_url}/post/unlike/${value._id}`, {
+        like: userData.userId,
+      });
+      console.log(result);
+    } else {
+      setLikeState(!likestate);
+      const result = await axios.patch(`${base_url}/post/like/${value._id}`, {
+        like: userData.userId,
+      });
+      console.log(result);
+    }
+    await fetchFeed();
+  };
+  // const checkLikeState = value => {
+  //   const res = value.like.includes(userData.userId);
+  //   return res;
+  // };
+
   return (
     <View style={style.feedBody}>
       <View
@@ -167,140 +193,154 @@ const Feed = props => {
 
       <FeedModal feed={moreOption} feedOptionClose={feedClose} />
       <MoreOptions other={Option} moreOptionClose={optionClose} />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{marginTop: 20, marginBottom: 10}}>
-          <StoryTab
-            parentCallback={callbackFunction}
-            modal={modalVisible}
-            other={Option}
-          />
-        </View>
+      {/* <ScrollView showsVerticalScrollIndicator={false}> */}
+      {/* <View style={{marginTop: 20, marginBottom: 10}}>
+        <StoryTab
+          parentCallback={callbackFunction}
+          modal={modalVisible}
+          other={Option}
+        />
+      </View> */}
 
-        {feedData && userList && (
-          <View style={style.post}>
-            <FlatList
-              data={feedData}
-              renderItem={({item}) => (
-                <View
-                  style={
-                    {
-                      //   flexDirection: "row",
-                      //   alignItems: "center",
-                      //   padding: 8,
-                      //   backgroundColor: "red",
-                    }
-                  }>
-                  <View style={style.postHead}>
-                    <View style={{flexDirection: 'row'}}>
-                      <TouchableOpacity
-                        onPress={
-                          () => setModalVisible(!modalVisible)
-                          // props.modalCallback({story: true, feedOption: false})
-                        }>
-                        <Avatar.Icon
-                          icon="account"
-                          color="white"
-                          size={40}
-                          style={{
-                            borderColor: '#f56729',
-                            borderWidth: 2,
-                            marginTop: '5%',
-                            marginLeft: '19%',
-                          }}
-                          backgroundColor="black"
-                        />
-                      </TouchableOpacity>
-
-                      <Text
-                        style={{
-                          color: '#fff',
-                          fontSize: 20,
-                          marginLeft: 1,
-                          textAlignVertical: 'center',
-                        }}>
-                        {getUserName(item.userId)}
-                        {/* {item.title} */}
-                      </Text>
-                    </View>
+      {feedData && userList && (
+        <View style={style.post}>
+          <FlatList
+            data={userFeed}
+            initialNumToRender={3}
+            renderItem={({item}) => (
+              <View
+                style={
+                  {
+                    //   flexDirection: "row",
+                    //   alignItems: "center",
+                    //   padding: 8,
+                    //   backgroundColor: "red",
+                  }
+                }>
+                <View style={style.postHead}>
+                  <View style={{flexDirection: 'row'}}>
                     <TouchableOpacity
                       onPress={
-                        () => setMoreOption(true)
-                        // props.modalCallback({feedOption: true, story: false})
+                        () => setModalVisible(!modalVisible)
+                        // props.modalCallback({story: true, feedOption: false})
                       }>
-                      <IconButton icon="dots-vertical" color="#fff" />
+                      <Avatar.Icon
+                        icon="account"
+                        color="white"
+                        size={40}
+                        style={{
+                          borderColor: '#f56729',
+                          borderWidth: 2,
+                          marginTop: '5%',
+                          marginLeft: '19%',
+                        }}
+                        backgroundColor="black"
+                      />
+                    </TouchableOpacity>
+
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 20,
+                        marginLeft: 1,
+                        textAlignVertical: 'center',
+                      }}>
+                      {getUserName(item.userId)}
+                      {/* {item.title} */}
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={
+                      () => setMoreOption(true)
+                      // props.modalCallback({feedOption: true, story: false})
+                    }>
+                    <IconButton icon="dots-vertical" color="#fff" />
+                  </TouchableOpacity>
+                </View>
+                <View style={style.postBody}>
+                  <View
+                  // style={{
+                  //   backgroundColor: "red",
+                  //   //   height: 200,
+                  //   width: "100%",
+                  // }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => {
+                        // console.log('single tap');
+                        backCount++;
+                        if (backCount === 2) {
+                          clearTimeout(backTimer);
+                          // console.log('double tap!');
+                          setLikeState(!likestate);
+                        } else {
+                          backTimer = setTimeout(() => {
+                            backCount = 0;
+                          }, 300);
+                        }
+                      }}>
+                      <Image
+                        style={{
+                          width: (Dimensions.get('screen').width * 100) / 100,
+                          height: (Dimensions.get('screen').height * 33) / 100,
+                        }}
+                        source={{
+                          uri: `http://localhost:3002/uploads/${item.image}`,
+                          // uri: 'https://picsum.photos/700',
+                        }}
+                        resizeMode="contain"
+                      />
                     </TouchableOpacity>
                   </View>
-                  <View style={style.postBody}>
+                  <View>
                     <View
-                    // style={{
-                    //   backgroundColor: "red",
-                    //   //   height: 200,
-                    //   width: "100%",
-                    // }}
-                    >
-                      <TouchableOpacity
-                        onPress={() => {
-                          // console.log('single tap');
-                          backCount++;
-                          if (backCount === 2) {
-                            clearTimeout(backTimer);
-                            // console.log('double tap!');
-                            setLikeState(!likestate);
-                          } else {
-                            backTimer = setTimeout(() => {
-                              backCount = 0;
-                            }, 300);
-                          }
-                        }}>
-                        <Image
-                          style={{
-                            width: (Dimensions.get('screen').width * 100) / 100,
-                            height:
-                              (Dimensions.get('screen').height * 33) / 100,
-                          }}
-                          source={{
-                            uri: `http://localhost:3002/uploads/${item.image}`,
-                            // uri: 'https://picsum.photos/700',
-                          }}
-                          resizeMode="contain"
-                        />
-                      </TouchableOpacity>
-                    </View>
-                    <View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                        }}>
-                        <View style={style.icons}>
-                          <IconButton
-                            onPress={() => setLikeState(!likestate)}
-                            color={likestate ? 'red' : '#fff'}
-                            icon={likestate ? 'heart' : 'heart-outline'}
-                          />
-                          <IconButton color="#fff" icon="comment-outline" />
-                          <IconButton color="#fff" icon="share-outline" />
-                        </View>
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                      }}>
+                      <View style={style.icons}>
                         <IconButton
-                          color="#fff"
-                          icon={saved ? 'bookmark' : 'bookmark-outline'}
-                          onPress={() => (
-                            setSaved(!saved),
-                            console.log(item.likes),
-                            ToastAndroid.show('Post saved', ToastAndroid.SHORT)
-                          )}
+                          onPress={() => checkLike(item)}
+                          color={
+                            item.like.includes(userData.userId) ? 'red' : '#fff'
+                          }
+                          icon={
+                            item.like.includes(userData.userId)
+                              ? 'heart'
+                              : 'heart-outline'
+                          }
                         />
+                        <IconButton color="#fff" icon="comment-outline" />
+                        <IconButton color="#fff" icon="share-outline" />
                       </View>
+                      <IconButton
+                        color="#fff"
+                        icon={saved ? 'bookmark' : 'bookmark-outline'}
+                        onPress={() => (
+                          setSaved(!saved),
+                          console.log(item.likes),
+                          ToastAndroid.show('Post saved', ToastAndroid.SHORT)
+                        )}
+                      />
+                    </View>
+                    <View style={{left: 15}}>
+                      <Text style={{color: '#fff'}}>
+                        {item.like.length} likes
+                      </Text>
+                    </View>
+                    <View style={{left: 15, top: 5}}>
+                      <Text style={{color: '#fff'}}>{item.description}</Text>
                     </View>
                   </View>
-                  {/* <Icon name={item.icon} color="white" size={30} /> */}
                 </View>
-              )}
-              // keyExtractor={(item) => item.id}
-            />
-          </View>
-        )}
-      </ScrollView>
+                {/* <Icon name={item.icon} color="white" size={30} /> */}
+              </View>
+            )}
+            // keyExtractor={(item) => item.id}
+          />
+        </View>
+      )}
+      {/* </ScrollView> */}
     </View>
   );
 };
@@ -323,7 +363,7 @@ const style = StyleSheet.create({
     // backgroundColor: "grey",
     // borderWidth: 1,
     // borderColor: "yellow",
-    height: 350,
+    height: 400,
     width: '100%',
     marginTop: 10,
     marginBottom: 10,

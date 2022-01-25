@@ -20,6 +20,7 @@ import axios from 'react-native-axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
 
 import {IconButton, Colors, List, Avatar, Badge} from 'react-native-paper';
+import base_url from './app_constants';
 import PostGrid from './PostGrid';
 const height = Dimensions.get('screen').height;
 const width = Dimensions.get('screen').width;
@@ -39,7 +40,7 @@ const ActivityScreen = () => {
         // isLogin = data.state;
         // setIsLogin(isLogin);
         userData = data;
-        console.log(userData);
+        console.log(userData, `${base_url}/users/`);
         await checkUser();
         await fetchUser();
       } catch (e) {
@@ -51,7 +52,7 @@ const ActivityScreen = () => {
 
   const fetchUser = async () => {
     try {
-      const users = await axios.get('http://localhost:3002/users');
+      const users = await axios.get(`${base_url}/users/`);
       console.log(users.data);
       userList = users.data;
       setUser(userList);
@@ -63,7 +64,7 @@ const ActivityScreen = () => {
   const unfollowUser = async id => {
     console.log('entered unfollow');
     const result = await axios.patch(
-      `http://localhost:3002/userDetail/${userData.userId}`,
+      `${base_url}/userDetail/${userData.userId}`,
       {
         following: id,
       },
@@ -74,7 +75,7 @@ const ActivityScreen = () => {
 
   const fetchUserDetail = async followingUserId => {
     const userDetails = await axios.post(
-      `http://localhost:3002/userDetail/${userData.userId}`,
+      `${base_url}/userDetail/${userData.userId}`,
       {
         userId: userData.userId,
         following: [followingUserId],
@@ -86,9 +87,7 @@ const ActivityScreen = () => {
   };
   const checkUser = async () => {
     console.log('first');
-    const result = await axios.get(
-      `http://localhost:3002/userDetail/${userData.userId}`,
-    );
+    const result = await axios.get(`${base_url}/userDetail/${userData.userId}`);
     console.log(result.data);
     userDetail = result.data;
     setUserDetailFull(result.data);
