@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {IconButton, Colors, List, Avatar} from 'react-native-paper';
+import base_url from '../app_constants';
 const height = Dimensions.get('screen').height;
 const width = Dimensions.get('screen').width;
 const PostModal = props => {
@@ -87,7 +88,7 @@ const PostModal = props => {
                 flex: 1,
               }}
               source={{
-                uri: `http://localhost:3002/uploads/${props.data.image}`,
+                uri: `${base_url}/uploads/${props.data.image}`,
               }}
               resizeMode="contain"
             />

@@ -1,139 +1,256 @@
-// /* eslint-disable react-native/no-inline-styles */
-// /* eslint-disable no-unused-vars */
-// import React, {useState, useEffect} from 'react';
+/* eslint-disable no-trailing-spaces */
+/* eslint-disable react-native/no-inline-styles */
+import React, {useState, useCallback, useEffect} from 'react';
+import {GiftedChat} from 'react-native-gifted-chat';
+import {
+  StyleSheet,
+  Text,
+  Pressable,
+  Modal,
+  Button,
+  View,
+  Alert,
+  Dimensions,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  ActivityIndicator,
+  ScrollView,
+} from 'react-native';
+import EncryptedStorage from 'react-native-encrypted-storage';
+import SocketIOClient from 'socket.io-client';
 
-// import {
-//   StyleSheet,
-//   Text,
-//   Pressable,
-//   Modal,
-//   Button,
-//   View,
-//   Alert,
-//   Dimensions,
-//   FlatList,
-//   TouchableOpacity,
-//   Image,
-//   TextInput,
-//   Animated,
-//   Easing,
-//   DrawerLayoutAndroid,
-// } from 'react-native';
+import {Avatar, IconButton} from 'react-native-paper';
+import base_url from './app_constants';
 
-// import {IconButton, Colors, List} from 'react-native-paper';
-// import Home from './Home';
-// import ReelsScreen from './ReelsScreen';
-// import ActivityScreen from './ActivityScreen';
-// import Chats from './Chats';
-// const height = Dimensions.get('screen').height;
-// const width = Dimensions.get('screen').width;
+const height = Dimensions.get('window').height;
+const width = Dimensions.get('window').width;
+var message;
+var userData;
+const MeassageScreen = () => {
+  const [user, setUser] = useState();
+  const [senderID, setSenderID] = useState();
+  const [recieverID, setRecieverID] = useState();
+  const [msg, setMsg] = useState();
+  const temp = [
+    {from: 'sender', message: 'hy'},
+    {from: 'reciever', message: 'hy'},
+    {from: 'sender', message: 'sup!!'},
+    {from: 'reciever', message: 'nice'},
+    {from: 'sender', message: 'wbu'},
+    {from: 'reciever', message: 'just chilllin !!'},
+    {from: 'sender', message: 'ohk'},
+    {from: 'reciever', message: 'bye!'},
+  ];
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        var data = await EncryptedStorage.getItem('user_session');
+        // console.log('line 68 -', JSON.parse(data));
+        data = JSON.parse(data);
+        // data.state ? (isLogin = data.state) : null;
+        // isLogin = data.state;
+        // setIsLogin(isLogin);
+        userData = data;
+        setUser(data);
+        console.log(userData);
+        setSenderID(userData.userId);
+        setRecieverID('61a5c96dd3a7f8374e2a9f39');
+        // await fetchFeed();
+        // await fetchUser();
+        // await checkUser();
+        // await getMsg();
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    getData();
+  }, []);
+  useEffect(() => {
+    // getMsg();
+  });
 
-// const MessageScreen = () => {
-//   const [chat, setChat] = useState(true);
-//   const [calls, setCalls] = useState(false);
+  const getMsg = async () => {
+    const socket = await SocketIOClient(base_url, {
+      query: {
+        senderId: senderID,
+        recieverId: recieverID,
+      },
+    });
+    //   console.log(socket);
+    socket.on('getChat', data => {
+      // console.log('getChat', data[0].messages);
+      message = data && data[0].messages;
+      setMsg(message);
+      console.log(message);
+    });
+  };
 
-//   return (
-//     <View style={styles.mainScreen}>
-//       <View style={styles.messageHead}>
-//         <IconButton icon="arrow-left" color="white" size={30} />
-//         <View style={{left: 15, flexDirection: 'row', alignItems: 'center'}}>
-//           <Text style={{fontSize: 25, color: 'white'}}>User_name</Text>
-//           <IconButton icon="chevron-down" color="white" />
-//         </View>
-//         <View style={{position: 'absolute', right: 0, flexDirection: 'row'}}>
-//           <IconButton icon="video-outline" color="white" size={30} />
-//           <IconButton icon="square-edit-outline" color="white" size={30} />
-//         </View>
-//       </View>
-//       <View style={styles.topNav}>
-//         <View
-//           style={{
-//             flexDirection: 'row',
-//             justifyContent: 'space-around',
-//             borderBottomColor: '#202020',
-//             borderBottomWidth: 1,
-//             height: '100%',
-//             paddingBottom: 0,
-//           }}>
-//           <TouchableOpacity
-//             style={[
-//               chat
-//                 ? {
-//                     borderBottomColor: 'white',
-//                     borderBottomWidth: 1,
-//                     width: '50%',
-//                     alignItems: 'center',
-//                   }
-//                 : {width: '50%', alignItems: 'center'},
-//             ]}
-//             onPress={() => (setChat(true), setCalls(false))}>
-//             <Text
-//               style={{
-//                 color: '#fff',
-//                 fontSize: 17,
-//                 position: 'absolute',
-//                 bottom: 10,
-//               }}>
-//               Chats
-//             </Text>
-//           </TouchableOpacity>
-//           <TouchableOpacity
-//             style={[
-//               calls
-//                 ? {
-//                     borderBottomColor: 'white',
-//                     borderBottomWidth: 1,
-//                     width: '50%',
-//                     alignItems: 'center',
-//                     // borderColor: 'yellow',
-//                     // borderWidth: 1,
-//                     // justifyContent: 'flex-end',
-//                   }
-//                 : {width: '50%', alignItems: 'center'},
-//             ]}
-//             onPress={() => (setChat(false), setCalls(true))}>
-//             <Text
-//               style={{
-//                 color: 'white',
-//                 fontSize: 17,
-//                 position: 'absolute',
-//                 bottom: 10,
-//               }}>
-//               Calls
-//             </Text>
-//           </TouchableOpacity>
-//         </View>
-//       </View>
-//       <View>
-//         <Chats />
-//       </View>
-//     </View>
-//   );
-// };
+  const SenderMsg = ({msg, from}) => {
+    return (
+      <View
+        style={[
+          {alignSelf: from === 'sender' ? 'flex-end' : 'flex-start'},
+          {flexDirection: 'row'},
+        ]}>
+        {from !== 'sender' && (
+          <Avatar.Icon
+            size={30}
+            style={{
+              backgroundColor: '#f56729',
+              alignSelf: 'center',
+              display: 'flex',
+              marginRight: 9,
+            }}
+            color="#fff"
+            icon="account"
+          />
+        )}
+        <View style={styles.Smsg}>
+          <Text>{msg}</Text>
+        </View>
+      </View>
+    );
+  };
 
-// const styles = StyleSheet.create({
-//   mainScreen: {
-//     backgroundColor: 'black',
-//     // borderColor: 'yellow',
-//     // borderWidth: 1,
-//     height: (height * 90) / 100,
-//     width: '100%',
-//     // zIndex: 3,
-//   },
-//   messageHead: {
-//     // borderColor: 'yellow',
-//     // borderWidth: 1,
-//     height: (height * 6) / 100,
-//     width: width,
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//   },
-//   topNav: {
-//     // borderColor: 'yellow',
-//     // borderWidth: 1,
-//     // height: '93%',
-//     height: (height * 6) / 100,
-//   },
-// });
+  return (
+    <View style={styles.mainBody}>
+      <View style={styles.chatHead}>
+        <View
+          style={{
+            height: '100%',
+            alignItems: 'center',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              //   backgroundColor: 'red',
+              width: (width * 70) / 100,
+              height: '100%',
+              justifyContent: 'space-evenly',
+            }}>
+            <IconButton icon="arrow-left" color="#fff" />
+            <Avatar.Icon
+              size={40}
+              style={{backgroundColor: '#f56729'}}
+              color="#fff"
+              icon="account"
+            />
 
-// export default MessageScreen;
+            <View
+              style={{
+                flexDirection: 'column',
+                // backgroundColor: 'yellow',
+                width: '60%',
+              }}>
+              <Text style={{color: '#fff', fontSize: 19}}>Name</Text>
+              <Text style={{color: '#fff'}}>user_name</Text>
+            </View>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <IconButton color="#fff" icon="phone-outline" />
+            <IconButton color="#fff" icon="video-outline" />
+          </View>
+        </View>
+      </View>
+      <View style={styles.chatBody}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {message &&
+            message.map(i => (
+              <SenderMsg
+                msg={i.message_body || 'no msg'}
+                from={i.user.senderId === senderID ? 'sender' : 'reciever'}
+              />
+              // <Text style={{color: 'red'}}>test</Text>
+            ))}
+        </ScrollView>
+        {/* <Text style={{color: 'red'}}>test</Text> */}
+      </View>
+      <View style={styles.messageBox}>
+        <View
+          style={{
+            borderRadius: 50,
+            backgroundColor: '#f56729',
+            width: 40,
+            height: 40,
+            left: 4,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <IconButton color="#fff" icon="camera-outline" />
+        </View>
+        <View style={{left: 3, width: '70%'}}>
+          <TextInput />
+        </View>
+        <View
+          style={{
+            borderRadius: 50,
+            backgroundColor: '#f56729',
+            width: 40,
+            height: 40,
+            right: 4,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <IconButton
+            color="#fff"
+            icon="send-outline"
+            onPress={() => getMsg()}
+          />
+        </View>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  mainBody: {
+    height: height,
+    width: width,
+    // borderWidth: 1,
+    // borderColor: 'red',
+    backgroundColor: '#000',
+  },
+  chatHead: {
+    width: width,
+    height: (height * 7) / 100,
+    // backgroundColor: 'grey',
+  },
+  messageBox: {
+    width: (width * 98) / 100,
+    height: (height * 6) / 100,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    position: 'absolute',
+    bottom: (height * 7) / 100,
+    borderRadius: 25,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    // borderWidth: 1,
+    // borderColor: 'red',
+  },
+  chatBody: {
+    height: (height * 80) / 100,
+    width: width,
+    // backgroundColor: 'grey',
+    flexDirection: 'column-reverse',
+    paddingBottom: 20,
+  },
+  Smsg: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: (height * 6) / 100,
+    width: (width * 30) / 100,
+    borderRadius: 10,
+    // borderWidth: 1,
+    // borderColor: 'red',
+    maxWidth: (width * 50) / 100,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+  },
+});
+
+export default MeassageScreen;

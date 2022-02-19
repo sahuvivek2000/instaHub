@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import axios from 'react-native-axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
@@ -30,6 +31,8 @@ var userDetail;
 const ActivityScreen = () => {
   const [user, setUser] = useState();
   const [userDetailFull, setUserDetailFull] = useState();
+  const [showLoader, setShowLoader] = useState(false);
+
   useEffect(() => {
     const getData = async () => {
       try {
@@ -51,17 +54,21 @@ const ActivityScreen = () => {
   }, []);
 
   const fetchUser = async () => {
+    setShowLoader(true);
     try {
       const users = await axios.get(`${base_url}/users/`);
-      console.log(users.data);
+      console.log('fetchUser', users.data);
       userList = users.data;
+      userList = userList.filter(i => i._id !== userData.userId);
       setUser(userList);
     } catch (e) {
       console.log(e);
     }
+    setShowLoader(false);
     // await checkUser();
   };
   const unfollowUser = async id => {
+    setShowLoader(true);
     console.log('entered unfollow');
     const result = await axios.patch(
       `${base_url}/userDetail/${userData.userId}`,
@@ -70,10 +77,12 @@ const ActivityScreen = () => {
       },
     );
     console.log(result);
+    setShowLoader(false);
     await checkUser();
   };
 
   const fetchUserDetail = async followingUserId => {
+    setShowLoader(true);
     const userDetails = await axios.post(
       `${base_url}/userDetail/${userData.userId}`,
       {
@@ -83,26 +92,33 @@ const ActivityScreen = () => {
       },
     );
     // setFollowingId('');
+    setShowLoader(false);
     await checkUser();
   };
   const checkUser = async () => {
+    setShowLoader(true);
     console.log('first');
     const result = await axios.get(`${base_url}/userDetail/${userData.userId}`);
-    console.log(result.data);
+    console.log('checkUser', result.data);
     userDetail = result.data;
     setUserDetailFull(result.data);
-    // console.log(userDetailFull);
+    console.log(userDetail);
+    setShowLoader(false);
   };
   const checkFollower = id => {
     // await checkUser();
-
-    let result = userDetail[0].following;
+    let result = userDetail[0].following ? userDetail[0].following : [];
     result = result.includes(id);
     // console.log(result);
     return result;
   };
   return (
     <View style={styles.mainContainer}>
+      {showLoader && (
+        <View style={styles.loader}>
+          <ActivityIndicator size={70} color="#fff" />
+        </View>
+      )}
       <View
         style={{
           //   borderColor: 'yellow',
@@ -115,7 +131,7 @@ const ActivityScreen = () => {
           Activity
         </Text>
       </View>
-      <View
+      {/* <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -135,17 +151,21 @@ const ActivityScreen = () => {
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </View> */}
 
       {user && (
         <View
           style={{
+            // borderColor: 'yellow',
+            // borderWidth: 1,
             // backgroundColor: 'yellow',
-            // height: (height * 50) / 100,
-            width: (width * 90) / 100,
+            height: (height * 83) / 100,
+            // width: (width * 90) / 100,
+            width: width,
           }}>
           <FlatList
             data={userList}
+            showsVerticalScrollIndicator={false}
             renderItem={({item}) => (
               <View
                 style={{
@@ -217,6 +237,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     // borderColor: 'yellow',
     // borderWidth: 1,
+  },
+  loader: {
+    position: 'absolute',
+    zIndex: 2,
+    height: height,
+    width: width,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

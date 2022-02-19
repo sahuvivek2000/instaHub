@@ -10,6 +10,7 @@ import {
   ToastAndroid,
   TouchableOpacity,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import axios from 'react-native-axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
@@ -45,6 +46,8 @@ var userData;
 var feedData;
 var userList;
 var userDetail;
+const height = Dimensions.get('window').height;
+const width = Dimensions.get('window').width;
 const Feed = props => {
   const [likestate, setLikeState] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -55,22 +58,26 @@ const Feed = props => {
   // const [modalVis, setModalVis] = useState(false);
   const [Option, setMore] = useState(false);
   const [feedOption, setFeedOption] = useState(false);
-  const [posts, setPost] = useState([
-    {username: 'Bheem', image: 'https://picsum.photos/700', likes: 4},
-    {username: 'Raju', image: 'https://picsum.photos/700', likes: 4},
-    {username: 'Kalu', image: 'https://picsum.photos/700', likes: 4},
-    {username: 'Chutki', image: 'https://picsum.photos/700', likes: 4},
-    {username: 'Jhonny', image: 'https://picsum.photos/700', likes: 4},
-    {username: 'Jordi', image: 'https://picsum.photos/700', likes: 4},
-    {username: 'Luke', image: 'https://picsum.photos/700', likes: 4},
-    {username: 'Rock', image: 'https://picsum.photos/700', likes: 4},
-  ]);
+  const [showLoader, setShowLoader] = useState(false);
+
+  // const [posts, setPost] = useState([
+  //   {username: 'Bheem', image: 'https://picsum.photos/700', likes: 4},
+  //   {username: 'Raju', image: 'https://picsum.photos/700', likes: 4},
+  //   {username: 'Kalu', image: 'https://picsum.photos/700', likes: 4},
+  //   {username: 'Chutki', image: 'https://picsum.photos/700', likes: 4},
+  //   {username: 'Jhonny', image: 'https://picsum.photos/700', likes: 4},
+  //   {username: 'Jordi', image: 'https://picsum.photos/700', likes: 4},
+  //   {username: 'Luke', image: 'https://picsum.photos/700', likes: 4},
+  //   {username: 'Rock', image: 'https://picsum.photos/700', likes: 4},
+  // ]);
 
   // const [backCount, setBackCount] = useState(0);
   // const [backTimer, setBackTimer] = useState(0);
   useEffect(() => {
     const getData = async () => {
       try {
+        // setShowLoader(true);
+
         var data = await EncryptedStorage.getItem('user_session');
         // console.log('line 68 -', JSON.parse(data));
         data = JSON.parse(data);
@@ -78,15 +85,17 @@ const Feed = props => {
         // isLogin = data.state;
         // setIsLogin(isLogin);
         userData = data;
-        // console.log(userData);
-        // await fetchFeed();
+        console.log(userData);
+        await fetchFeed();
         await fetchUser();
         // await checkUser();
         if (props.refresh) {
           await fetchFeed();
+
           console.log('refresh');
           props.refreshStat(false);
         }
+        // setShowLoader(false);
       } catch (e) {
         console.log(e);
       }
@@ -123,10 +132,12 @@ const Feed = props => {
   const fetchFeed = async () => {
     // const uId = [...userData.userId, ...userDetail[0].following];
     // console.log(uId);
+    setShowLoader(true);
     const feed = await axios.get(`${base_url}/post/${userData.userId}`);
     // console.log(feed.data);
-    feedData = feed.data.reverse();
+    feedData = feed.data.length > 1 && feed.data.reverse();
     setUserFeed(feedData);
+    setShowLoader(false);
   };
 
   const callbackFunction = data => {
@@ -201,6 +212,16 @@ const Feed = props => {
           other={Option}
         />
       </View> */}
+      {showLoader && (
+        <View style={style.loader}>
+          <ActivityIndicator size={70} color="#fff" />
+        </View>
+      )}
+      {!feedData && (
+        <View>
+          <Text>no posts</Text>
+        </View>
+      )}
 
       {feedData && userList && (
         <View style={style.post}>
@@ -285,7 +306,7 @@ const Feed = props => {
                           height: (Dimensions.get('screen').height * 33) / 100,
                         }}
                         source={{
-                          uri: `http://localhost:3002/uploads/${item.image}`,
+                          uri: `${base_url}/uploads/${item.image}`,
                           // uri: 'https://picsum.photos/700',
                         }}
                         resizeMode="contain"
@@ -372,6 +393,15 @@ const style = StyleSheet.create({
     // height: "50%",
     flexDirection: 'row',
     // color: "#fff",
+  },
+  loader: {
+    position: 'absolute',
+    zIndex: 2,
+    height: height,
+    width: width,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 export default Feed;

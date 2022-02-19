@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import axios from 'react-native-axios';
 import {IconButton, Colors, List, Avatar} from 'react-native-paper';
@@ -21,43 +22,19 @@ import PostModal from './modal/PostModal';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import base_url from './app_constants';
 
-const posts = [
-  {username: 'Bheem', image: 'https://picsum.photos/700'},
-  {username: 'Raju', image: 'https://picsum.photos/700'},
-  {username: 'Kalu', image: 'https://picsum.photos/700'},
-  {username: 'Chutki', image: 'https://picsum.photos/700'},
-  {username: 'Jhonny', image: 'https://picsum.photos/700'},
-  {username: 'Jordi', image: 'https://picsum.photos/700'},
-  {username: 'Luke', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-  {username: 'Rock', image: 'https://picsum.photos/700'},
-];
 var feedData;
 var userData;
 var userList;
 var modalData;
+const height = Dimensions.get('window').height;
+const width = Dimensions.get('window').width;
 
 const PostGrid = () => {
   const [showModal, setShowModal] = useState(false);
   const [showModalData, setShowModalData] = useState();
   const [user, setUser] = useState();
   const [userName, setUserName] = useState('');
+  const [showLoader, setShowLoader] = useState(false);
 
   const [userFeed, setUserFeed] = useState();
 
@@ -85,10 +62,12 @@ const PostGrid = () => {
   const fetchFeed = async () => {
     // const uId = [...userData.userId, ...userDetail[0].following];
     // console.log(uId);
+    setShowLoader(true);
     const feed = await axios.get(`${base_url}/post/${userData.userId}`);
     // console.log(feed.data);
     feedData = feed.data.reverse();
     setUserFeed(feedData);
+    setShowLoader(false);
   };
   const fetchUser = async () => {
     try {
@@ -119,6 +98,11 @@ const PostGrid = () => {
   };
   return (
     <View style={styles.postGridContainer}>
+      {showLoader && (
+        <View style={styles.loader}>
+          <ActivityIndicator size={70} color="#fff" />
+        </View>
+      )}
       <View
         style={[
           showModal
@@ -146,7 +130,7 @@ const PostGrid = () => {
                   width: 130,
                   height: 130,
                 }}
-                source={{uri: `http://localhost:3002/uploads/${item.image}`}}
+                source={{uri: `${base_url}/uploads/${item.image}`}}
               />
             </View>
           </TouchableOpacity>
@@ -163,6 +147,15 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red',
     // borderColor: 'yellow',
     // borderWidth: 2,
+  },
+  loader: {
+    position: 'absolute',
+    zIndex: 2,
+    height: height,
+    width: width,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 export default PostGrid;

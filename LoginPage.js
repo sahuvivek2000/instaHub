@@ -16,6 +16,7 @@ import {
   Image,
   TextInput,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from 'react-native';
 import axios from 'react-native-axios';
 import {
@@ -27,6 +28,7 @@ import {
   Divider,
 } from 'react-native-paper';
 import PostGrid from './PostGrid';
+import base_url from './app_constants';
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
@@ -35,33 +37,53 @@ const LoginPage = props => {
   const [userPassword, setUserPassword] = useState('');
   const [UserName, setUserName] = useState('');
   const [userId, setUserId] = useState('');
-
+  const [showLoader, setShowLoader] = useState(false);
   const [userVerifyPassword, setUserVerifyPassword] = useState('');
   const [hidePass1, setHidePass1] = useState(true);
   const [hidePass2, setHidePass2] = useState(true);
-
+  const [error, setError] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const [loginComp, setLogin] = useState(true);
   const [signInComp, setSignInComp] = useState(false);
 
   const login = async () => {
     // console.log('login', userEmail);
-    const result = await axios.post('http://localhost:3002/login/', {
+    setShowLoader(true);
+    const result = await axios.post(`${base_url}/login/`, {
       email: userEmail,
       password: userPassword,
     });
     // const result = await axios.get('http://localhost:3002/users/');
     if (result.data.message === 'Login sucess!') {
+      console.log(result.data);
       props.callbackFunction({
         userEmail: userEmail,
         userName: UserName,
         userId: result.data.userId,
         state: true,
       });
+      setShowLoader(false);
       setUserId(result.data.userId);
     }
     // props.callbackFunction(isLogin);
     // console.log(result);
+  };
+
+  const LoginError = () => {
+    return (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={error}
+        style={{
+          backgroundColor: 'rgba(0,0,0,0.4)',
+          flex: 1,
+          position: 'absolute',
+          zIndex: 2,
+        }}>
+        <View></View>
+      </Modal>
+    );
   };
   const register = async () => {
     if (
@@ -70,7 +92,7 @@ const LoginPage = props => {
       UserName &&
       userPassword === userVerifyPassword
     ) {
-      const result = await axios.post('http://localhost:3002/reg/', {
+      const result = await axios.post(`${base_url}/reg/`, {
         email: userEmail,
         password: userPassword,
         username: UserName,
@@ -325,6 +347,11 @@ const LoginPage = props => {
           )}
         </View>
       </KeyboardAvoidingView>
+      {showLoader && (
+        <View style={styles.loader}>
+          <ActivityIndicator size={70} color="#fff" />
+        </View>
+      )}
     </View>
   );
 };
@@ -356,6 +383,15 @@ const styles = StyleSheet.create({
     width: (width * 85) / 100,
     borderRadius: 7,
     paddingLeft: 10,
+  },
+  loader: {
+    position: 'absolute',
+    zIndex: 2,
+    height: height,
+    width: width,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

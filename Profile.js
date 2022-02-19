@@ -14,16 +14,22 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import {IconButton, Colors, List, Avatar} from 'react-native-paper';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, useFocusEffect} from '@react-navigation/native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import axios from 'react-native-axios';
 
 import ProfileHead from './ProfileHead';
 import StoryTab from './StoryTab';
 import PostGrid from './PostGrid';
+import base_url from './app_constants';
+import EditProfile from './modal/EditProfile';
+var userDetail;
+var userList;
 var userData;
 const height = Dimensions.get('screen').height;
 const width = Dimensions.get('screen').width;
@@ -35,6 +41,9 @@ const Profile = props => {
   const [tagPostGrid, setTagPostGrid] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [user, setUser] = useState();
+  const [showLoader, setShowLoader] = useState(false);
+  const [userDetailFull, setUserDetailFull] = useState();
+  const [isEditProfile, setIsEditProfile] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -46,11 +55,11 @@ const Profile = props => {
         // isLogin = data.state;
         // setIsLogin(isLogin);
         userData = data;
-        setUser(data);
-        console.log(userData);
+        // setUser(data);
+        console.log('userdata', userData);
         // await fetchFeed();
-        // await fetchUser();
-        // await checkUser();
+        await fetchUser();
+        await checkUser();
       } catch (e) {
         console.log(e);
       }
@@ -58,15 +67,80 @@ const Profile = props => {
     getData();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const getData = async () => {
+        try {
+          var data = await EncryptedStorage.getItem('user_session');
+          // console.log('line 68 -', JSON.parse(data));
+          data = JSON.parse(data);
+          // data.state ? (isLogin = data.state) : null;
+          // isLogin = data.state;
+          // setIsLogin(isLogin);
+          userData = data;
+          setUser(data);
+          // console.log('useFocus');
+          // await fetchFeed();
+          // await fetchUser();
+          await checkUser();
+        } catch (e) {
+          console.log(e);
+        }
+      };
+      getData();
+    }, []),
+  );
+
+  const fetchUser = async () => {
+    setShowLoader(true);
+    try {
+      const users = await axios.get(`${base_url}/users/`);
+      console.log('fetchUser', users.data);
+      userList = users.data;
+      // console.log(userList);
+      const res = users.data.filter(i => i._id === userData.userId);
+      console.log('res', res);
+      setUser(res[0]);
+      // userData = res;
+    } catch (e) {
+      console.log(e);
+    }
+    setShowLoader(false);
+    // await checkUser();
+  };
+
+  const checkUser = async () => {
+    setShowLoader(true);
+    console.log('first');
+    const result = await axios.get(`${base_url}/userDetail/${userData.userId}`);
+    console.log('checkUser', result.data);
+    userDetail = result.data;
+    setUserDetailFull(result.data);
+    // console.log(userDetailFull);
+    setShowLoader(false);
+  };
+
   const handlePress = () => setExpanded(!expanded);
   const parentFunction = data => {
     setIsLogin(data);
     props.childFunction(data);
     console.log('profile', data);
   };
+
+  const editProfileCallback = value => {
+    setIsEditProfile(value);
+  };
+
   return (
     <View style={styles.profile}>
-      <ProfileHead childFunction={parentFunction} />
+      {showLoader && (
+        <View style={styles.loader}>
+          <ActivityIndicator size={70} color="#fff" />
+        </View>
+      )}
+      {user && user.username && (
+        <ProfileHead childFunction={parentFunction} userName={user.username} />
+      )}
       <View style={styles.profileUser}>
         <View style={{justifyContent: 'center'}}>
           <Avatar.Image
@@ -93,11 +167,18 @@ const Profile = props => {
             <Text style={{color: 'white', fontSize: 15}}>Posts</Text>
           </View>
           <View style={{alignItems: 'center'}}>
-            <Text style={{color: 'white', fontSize: 15}}>0</Text>
+            <Text style={{color: 'white', fontSize: 15}}>
+              {userDetail &&
+                userDetail[0].follower &&
+                userDetail[0].follower.length}
+            </Text>
             <Text style={{color: 'white', fontSize: 15}}>Followers</Text>
           </View>
           <View style={{alignItems: 'center'}}>
-            <Text style={{color: 'white', fontSize: 15}}>0</Text>
+            <Text style={{color: 'white', fontSize: 15}}>
+              {' '}
+              {userDetail && userDetail[0].following.length}
+            </Text>
             <Text style={{color: 'white', fontSize: 15}}>Following</Text>
           </View>
         </View>
@@ -105,7 +186,7 @@ const Profile = props => {
       {userData && (
         <View style={{left: 17}}>
           <Text style={{color: 'white', fontSize: 15}}>
-            {userData.userName ? userData.userName : userData.userEmail}
+            {user && user.username}
           </Text>
           <Text style={{color: 'white', fontSize: 15}}>Bio</Text>
         </View>
@@ -118,6 +199,7 @@ const Profile = props => {
           justifyContent: 'space-evenly',
         }}>
         <TouchableOpacity
+          onPress={() => setIsEditProfile(true)}
           style={{
             borderColor: '#505050',
             borderWidth: 1.3,
@@ -259,6 +341,13 @@ const Profile = props => {
         </View>
         <PostGrid userId={userData} />
       </View>
+      {userDetail && (
+        <EditProfile
+          open={isEditProfile}
+          userId={userDetail}
+          modalClose={editProfileCallback}
+        />
+      )}
     </View>
   );
 };
@@ -289,6 +378,15 @@ const styles = StyleSheet.create({
     // borderColor: 'yellow',
     // borderWidth: 1,
     flex: 0.89,
+  },
+  loader: {
+    position: 'absolute',
+    zIndex: 2,
+    height: height,
+    width: width,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

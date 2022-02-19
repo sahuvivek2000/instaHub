@@ -22,6 +22,9 @@ const AppBar = props => {
     console.log('first');
     setPost(value);
   };
+  const refreshState = () => {
+    props.postRefresh(true);
+  };
 
   const drawer = useRef(null);
   return (
@@ -95,7 +98,7 @@ const AppBar = props => {
 
       {/* <Appbar.Action icon="magnify" onPress={() => {}} />
     <Appbar.Action icon="dots-vertical" onPress={() => {}} /> */}
-      <AddPost open={post} modalClose={postCallback} />
+      <AddPost open={post} modalClose={postCallback} refresh={refreshState} />
     </View>
   );
 };

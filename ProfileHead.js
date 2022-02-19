@@ -25,7 +25,9 @@ const ProfileHead = props => {
 
   return (
     <View style={styles.head}>
-      <Text style={{fontSize: 22, color: 'white', left: 20}}>User_Name</Text>
+      <Text style={{fontSize: 22, color: 'white', left: 20}}>
+        {props.userName}
+      </Text>
       <View style={{flexDirection: 'row'}}>
         <IconButton icon="plus-circle-outline" color="#fff" size={27} />
         <IconButton

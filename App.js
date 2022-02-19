@@ -23,6 +23,7 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import {IconButton, Colors, List} from 'react-native-paper';
 // import { Icon } from "react-native-paper/lib/typescript/components/Avatar/Avatar";
@@ -44,6 +45,8 @@ import ActivityScreen from './ActivityScreen';
 import ReelsScreen from './ReelsScreen';
 import MessageScreen from './MessageScreen';
 import LoginPage from './LoginPage';
+// import io from 'socket.io-client';
+
 const mydata = [
   {title: 'View Profile', icon: 'account-circle'},
   {title: 'Mute', icon: 'microphone-off'},
@@ -52,9 +55,13 @@ var userName = '';
 var userEmail = '';
 var userId = '';
 var isLogin = false;
+const height = Dimensions.get('window').height;
+const width = Dimensions.get('window').width;
 const Tab = createMaterialBottomTabNavigator();
 const App = () => {
   const [Login, setIsLogin] = React.useState();
+  const [showLoader, setShowLoader] = useState(false);
+
   // const [modalVis, setModalVis] = useState(false);
   // const [moreOption, setMore] = useState(false);
   // const [data, setData] = useState({modal: false, other: false});
@@ -65,16 +72,23 @@ const App = () => {
   useEffect(() => {
     const getData = async () => {
       try {
+        setShowLoader(true);
         var data = await EncryptedStorage.getItem('user_session');
         // console.log('line 68 -', JSON.parse(data));
         data = JSON.parse(data);
-        // data.state ? (isLogin = data.state) : null;
-        isLogin = data.state;
+        data ? (isLogin = data.state) : (isLogin = false);
+        // isLogin = data.state;
         setIsLogin(isLogin);
+        setShowLoader(false);
       } catch (e) {
         console.log(e);
       }
     };
+    // const getMsg = async () => {
+    //   const msg = io('localhost:3001', {jsonp: false});
+    //   console.log(msg);
+    // };
+    // getMsg();
     getData();
   }, []);
   // const callbackFunction = data => {
@@ -114,6 +128,7 @@ const App = () => {
   const profileFunction = async value => {
     isLogin = value;
     setIsLogin(value);
+    setUserData();
   };
   return (
     <View
@@ -184,7 +199,7 @@ const App = () => {
             />
             <Tab.Screen
               name="Reels"
-              component={ReelsScreen}
+              component={MessageScreen}
               options={{
                 tabBarIcon: () => (
                   <IconButton
@@ -260,6 +275,11 @@ const App = () => {
       ) : (
         <LoginPage callbackFunction={parentFunction} />
       )}
+      {showLoader && (
+        <View style={styles.loader}>
+          <ActivityIndicator size={70} color="#fff" />
+        </View>
+      )}
     </View>
   );
 };
@@ -302,6 +322,15 @@ const styles = StyleSheet.create({
   },
   button: {
     elevation: 2,
+  },
+  loader: {
+    position: 'absolute',
+    zIndex: 2,
+    height: height,
+    width: width,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   closeIcon: {

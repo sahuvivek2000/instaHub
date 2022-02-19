@@ -17,20 +17,23 @@ import {
   Image,
   TextInput,
   PermissionsAndroid,
+  ActivityIndicator,
 } from 'react-native';
 import axios from 'react-native-axios';
 import DocumentPicker from 'react-native-document-picker';
 import {IconButton, Colors, List, ProgressBar} from 'react-native-paper';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import base_url from '../app_constants';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 var userData;
 const AddPost = props => {
   const [post, setPost] = useState(false);
-  const [caption, setCaption] = useState('new post');
-  const [imageAlt, setImageAlt] = useState('new');
+  const [caption, setCaption] = useState('');
+  const [imageAlt, setImageAlt] = useState('');
   const [fileToUpload, setFileToUpload] = useState();
+  const [showLoader, setShowLoader] = useState(false);
 
   // useEffect(() => {
   //   setPost(props.open);
@@ -83,7 +86,7 @@ const AddPost = props => {
       const res = await DocumentPicker.pick({
         type: [DocumentPicker.types.images],
       });
-      console.log(res);
+      console.log('res', res);
       setFileToUpload(res);
     } catch (err) {
       console.log(err);
@@ -98,6 +101,7 @@ const AddPost = props => {
     }
   };
   const uploadImage = async e => {
+    setShowLoader(true);
     // e.persist();
     console.log('entered');
     const data = new FormData();
@@ -122,18 +126,27 @@ const AddPost = props => {
     };
     console.log(data);
     const res = await axios
-      .post('http://localhost:3002/post/', data, headers)
+      .post(`${base_url}/post/`, data, headers)
       .then(function (response) {
         console.log('response :', response);
+        props.modalClose(false);
+        setShowLoader(false);
+        props.refresh();
       })
       .catch(function (error) {
         console.log('error from image :');
+        setShowLoader(false);
       });
     console.log('res', res);
   };
   const UpdateCaption = e => {};
   return (
     <Modal animationType="slide" transparent={true} visible={props.open}>
+      {showLoader && (
+        <View style={styles.loader}>
+          <ActivityIndicator size={70} color="#fff" />
+        </View>
+      )}
       <View style={styles.postBody}>
         <View style={styles.closeIcon}>
           <Pressable onPress={() => props.modalClose(false)}>
@@ -148,6 +161,7 @@ const AddPost = props => {
         <View style={styles.post}>
           <View style={styles.textInput}>
             <TextInput
+              style={{width: '100%'}}
               placeholder="Image Alt"
               onChange={text => {
                 setImageAlt(text.nativeEvent.text);
@@ -158,6 +172,7 @@ const AddPost = props => {
           </View>
           <View style={styles.textInput}>
             <TextInput
+              style={{width: '100%'}}
               placeholder="Caption"
               onChange={text => setCaption(text.nativeEvent.text)}
               // keyboardType={'email-address'}
@@ -169,15 +184,30 @@ const AddPost = props => {
               style={[
                 styles.textInput,
                 {
-                  backgroundColor: 'blue',
-                  height: 50,
+                  backgroundColor: 'rgba(255,255,255,0.15)',
+                  height: (height * 40) / 100,
                   borderColor: 'transparent',
                   alignItems: 'center',
                   justifyContent: 'center',
                 },
               ]}>
-              <Text style={{color: '#fff', fontSize: 17}}>Select Image</Text>
-              <IconButton color="#fff" icon="image-plus" />
+              {/* <Text style={{color: '#fff', fontSize: 17}}>Select Image</Text> */}
+              {fileToUpload && fileToUpload[0].uri ? (
+                <Image
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    marginLeft: -10,
+                  }}
+                  source={{
+                    uri: `${fileToUpload[0].uri}`,
+                    // uri: 'https://picsum.photos/700',
+                  }}
+                  resizeMode="contain"
+                />
+              ) : (
+                <IconButton color="#fff" icon="image-plus" />
+              )}
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={e => uploadImage(e)}>
@@ -226,7 +256,7 @@ const styles = StyleSheet.create({
     // marginLeft: 50,
   },
   post: {
-    height: (height * 60) / 100,
+    height: (height * 90) / 100,
     width: (width * 100) / 100,
 
     justifyContent: 'space-around',
@@ -243,6 +273,15 @@ const styles = StyleSheet.create({
     width: (width * 85) / 100,
     borderRadius: 7,
     paddingLeft: 10,
+  },
+  loader: {
+    position: 'absolute',
+    zIndex: 2,
+    height: height,
+    width: width,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
