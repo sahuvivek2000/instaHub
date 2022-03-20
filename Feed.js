@@ -227,6 +227,7 @@ const Feed = props => {
         <View style={style.post}>
           <FlatList
             data={userFeed}
+            showsVerticalScrollIndicator={false}
             initialNumToRender={3}
             renderItem={({item}) => (
               <View

@@ -188,7 +188,7 @@ const Profile = props => {
           <Text style={{color: 'white', fontSize: 15}}>
             {user && user.username}
           </Text>
-          <Text style={{color: 'white', fontSize: 15}}>Bio</Text>
+          <Text style={{color: 'white', fontSize: 15}}>{user && user.bio || 'No Bio'}</Text>
         </View>
       )}
       <View

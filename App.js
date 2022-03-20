@@ -45,6 +45,7 @@ import ActivityScreen from './ActivityScreen';
 import ReelsScreen from './ReelsScreen';
 import MessageScreen from './MessageScreen';
 import LoginPage from './LoginPage';
+import SplashScreen from 'react-native-splash-screen';
 // import io from 'socket.io-client';
 
 const mydata = [
@@ -89,7 +90,9 @@ const App = () => {
     //   console.log(msg);
     // };
     // getMsg();
+
     getData();
+    SplashScreen.hide();
   }, []);
   // const callbackFunction = data => {
   //   setModalVis(data.modal);
