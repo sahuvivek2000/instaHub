@@ -24,7 +24,7 @@ import DocumentPicker from 'react-native-document-picker';
 import {IconButton, Colors, List, ProgressBar} from 'react-native-paper';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import base_url from '../app_constants';
-
+import LottieView from 'lottie-react-native';
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 var userData;
@@ -144,7 +144,8 @@ const AddPost = props => {
     <Modal animationType="slide" transparent={true} visible={props.open}>
       {showLoader && (
         <View style={styles.loader}>
-          <ActivityIndicator size={70} color="#fff" />
+          {/* <ActivityIndicator size={70} color="#fff" /> */}
+          <LottieView source={require('../assests/80772-meme-without-bg.json')} autoPlay loop />
         </View>
       )}
       <View style={styles.postBody}>

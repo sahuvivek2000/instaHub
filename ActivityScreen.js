@@ -19,7 +19,7 @@ import {
 } from 'react-native';
 import axios from 'react-native-axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
-
+import LottieView from 'lottie-react-native';
 import {IconButton, Colors, List, Avatar, Badge} from 'react-native-paper';
 import base_url from './app_constants';
 import PostGrid from './PostGrid';
@@ -116,7 +116,8 @@ const ActivityScreen = () => {
     <View style={styles.mainContainer}>
       {showLoader && (
         <View style={styles.loader}>
-          <ActivityIndicator size={70} color="#fff" />
+          {/* <ActivityIndicator size={70} color="#fff" /> */}
+          <LottieView source={require('./assests/80772-meme-without-bg.json')} autoPlay loop />
         </View>
       )}
       <View

@@ -215,10 +215,15 @@ const ReelsScreen = () => {
                 getNewMeme();
               }
             }}
+            showsVerticalScrollIndicator={false}
+            pagingEnabled={true}
             scrollEventThrottle={400}>
             <FlatList
               // onEndReachedThreshold={1}
-              data={imageUrl}
+              pagingEnabled={true}
+            showsVerticalScrollIndicator={false}
+            data={imageUrl}
+              keyExtractor={(item, index) => `id_${index}`}
               renderItem={({item}) => (
                 <View
                   style={

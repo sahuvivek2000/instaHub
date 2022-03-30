@@ -29,6 +29,7 @@ import {
 } from 'react-native-paper';
 import PostGrid from './PostGrid';
 import base_url from './app_constants';
+import LottieView from 'lottie-react-native';
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
@@ -349,7 +350,8 @@ const LoginPage = props => {
       </KeyboardAvoidingView>
       {showLoader && (
         <View style={styles.loader}>
-          <ActivityIndicator size={70} color="#fff" />
+          <LottieView source={require('./assests/80772-meme-without-bg.json')} autoPlay loop />
+          {/* <ActivityIndicator size={70} color="#fff" /> */}
         </View>
       )}
     </View>

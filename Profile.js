@@ -22,7 +22,7 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import axios from 'react-native-axios';
-
+import LottieView from 'lottie-react-native';
 import ProfileHead from './ProfileHead';
 import StoryTab from './StoryTab';
 import PostGrid from './PostGrid';
@@ -135,7 +135,8 @@ const Profile = props => {
     <View style={styles.profile}>
       {showLoader && (
         <View style={styles.loader}>
-          <ActivityIndicator size={70} color="#fff" />
+          <LottieView source={require('./assests/80772-meme-without-bg.json')} autoPlay loop />
+          {/* <ActivityIndicator size={70} color="#fff" /> */}
         </View>
       )}
       {user && user.username && (
@@ -355,7 +356,7 @@ const Profile = props => {
 const styles = StyleSheet.create({
   profile: {
     width: '100%',
-    height: (Dimensions.get('screen').height * 90) / 100,
+    height: (Dimensions.get('window').height * 95) / 100,
     backgroundColor: 'black',
     // borderColor: 'yellow',
     // borderWidth: 2,

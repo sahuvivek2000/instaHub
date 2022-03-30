@@ -14,7 +14,8 @@ import {
 } from 'react-native';
 import axios from 'react-native-axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
-
+// import AnimatedLoader from 'react-native-animated-loader';
+import LottieView from 'lottie-react-native';
 import {
   Avatar,
   Button,
@@ -214,7 +215,8 @@ const Feed = props => {
       </View> */}
       {showLoader && (
         <View style={style.loader}>
-          <ActivityIndicator size={70} color="#fff" />
+          {/* <ActivityIndicator size={70} color="#fff" /> */}
+          <LottieView source={require('./assests/80772-meme-without-bg.json')} autoPlay loop />
         </View>
       )}
       {!feedData && (

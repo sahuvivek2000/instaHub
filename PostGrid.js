@@ -19,6 +19,7 @@ import {
 import axios from 'react-native-axios';
 import {IconButton, Colors, List, Avatar} from 'react-native-paper';
 import PostModal from './modal/PostModal';
+import LottieView from 'lottie-react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import base_url from './app_constants';
 
@@ -100,7 +101,8 @@ const PostGrid = () => {
     <View style={styles.postGridContainer}>
       {showLoader && (
         <View style={styles.loader}>
-          <ActivityIndicator size={70} color="#fff" />
+          <LottieView source={require('./assests/80772-meme-without-bg.json')} autoPlay loop />
+          {/* <ActivityIndicator size={70} color="#fff" /> */}
         </View>
       )}
       <View

@@ -28,6 +28,7 @@ import {
 import {IconButton, Colors, List} from 'react-native-paper';
 // import { Icon } from "react-native-paper/lib/typescript/components/Avatar/Avatar";
 // import Icon from "react-native-vector-icons/dist/FontAwesome";
+import LottieView from 'lottie-react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 // import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -202,7 +203,7 @@ const App = () => {
             />
             <Tab.Screen
               name="Reels"
-              component={MessageScreen}
+              component={ReelsScreen}
               options={{
                 tabBarIcon: () => (
                   <IconButton
@@ -280,7 +281,8 @@ const App = () => {
       )}
       {showLoader && (
         <View style={styles.loader}>
-          <ActivityIndicator size={70} color="#fff" />
+          {/* <ActivityIndicator size={70} color="#fff" /> */}
+          <LottieView source={require('./assests/80772-meme-without-bg.json')} autoPlay loop />
         </View>
       )}
     </View>
